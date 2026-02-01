@@ -1,0 +1,35 @@
+version: 2
+
+models:
+  - name: fct_daily_user_activity
+    description: "User-day activity fact table derived from atomic events."
+    columns:
+      - name: user_id
+        tests:
+          - not_null
+      - name: account_id
+        tests:
+          - not_null
+      - name: event_date
+        tests:
+          - not_null
+      - name: is_active_user
+        tests:
+          - not_null
+  - name: fct_daily_account_health
+    description: "Account-day rollup derived from fct_daily_user_activity."
+    columns:
+      - name: account_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_accounts')
+              field: account_id
+
+      - name: event_date
+        tests:
+          - not_null
+
+      - name: dau
+        tests:
+          - not_null

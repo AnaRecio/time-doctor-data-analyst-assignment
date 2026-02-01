@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+.env
+
+
+# macOS
+.DS_Store
+
+
+# dbt
+/dbt_packages/
+/target/
+logs/
+
+
+# IDEs
+.vscode/
+.idea/
+
+
+# Data files (raw and generated)
+data/raw/
+data/processed/
+*.csv
+
+# OS / misc
+*.log

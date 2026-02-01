@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: raw
+    database: project-0e3bfb56-460f-4c3d-b3c
+    schema: td_assignment
+    tables:
+      - name: raw_dim_account
+      - name: raw_dim_user
+      - name: raw_fct_event
