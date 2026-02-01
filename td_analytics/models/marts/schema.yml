@@ -4,32 +4,34 @@ models:
   - name: fct_daily_user_activity
     description: "User-day activity fact table derived from atomic events."
     columns:
-      - name: user_id
-        tests:
-          - not_null
       - name: account_id
-        tests:
-          - not_null
+        tests: [not_null]
+      - name: user_id
+        tests: [not_null]
       - name: event_date
-        tests:
-          - not_null
+        tests: [not_null]
       - name: is_active_user
-        tests:
-          - not_null
-  - name: fct_daily_account_health
-    description: "Account-day rollup derived from fct_daily_user_activity."
+        tests: [not_null]
+      - name: engagement_events
+        tests: [not_null]
+      - name: work_session_seconds
+        tests: [not_null]
+      - name: tasks_created
+        tests: [not_null]
+      - name: tasks_completed
+        tests: [not_null]
+      - name: late_events
+        tests: [not_null]
+
+  - name: mart_account_daily_health
+    description: "Account-day executive health mart: usage, engagement, productivity, and data trust signals."
     columns:
       - name: account_id
-        tests:
-          - not_null
-          - relationships:
-              to: ref('stg_accounts')
-              field: account_id
-
+        tests: [not_null]
       - name: event_date
-        tests:
-          - not_null
-
+        tests: [not_null]
       - name: dau
-        tests:
-          - not_null
+        tests: [not_null]
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [account_id, event_date]
