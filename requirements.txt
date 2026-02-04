@@ -3,10 +3,4 @@ dbt-bigquery==1.10.2
 pandas
 numpy
 python-dotenv
-streamlit
-plotly
-google-cloud-bigquery
-google-auth
-pyarrow
-db-dtypes
 

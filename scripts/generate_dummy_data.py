@@ -21,7 +21,7 @@ class Config:
     # Scale
     n_accounts: int = 200 # number of accounts to generate
 
-    # Users per account range (actual per tier is sampled differently)
+    # Users per account range
     min_users_per_account: int = 3
     max_users_per_account: int = 120
 
@@ -85,7 +85,7 @@ def generate_accounts(cfg: Config) -> pd.DataFrame:
 
 
 def sample_users_per_account(plan_tier: str, cfg: Config) -> int:
-    # Larger accounts on higher tiers (simple but realistic)
+    # Larger accounts on higher tiers
     if plan_tier == "enterprise":
         return int(np.random.randint(50, cfg.max_users_per_account + 1))
     if plan_tier == "pro":
@@ -107,7 +107,6 @@ def generate_users(cfg: Config, accounts: pd.DataFrame) -> pd.DataFrame:
             activated = np.random.choice([True, False], p=[0.85, 0.15])
             activated_at = (user_created + timedelta(days=int(np.random.uniform(0, 7)))) if activated else None
 
-            # Some users explicitly deactivated
             is_active = np.random.choice([True, False], p=[0.90, 0.10])
             deactivated_at = None
             if (not is_active) and activated_at is not None:
@@ -197,7 +196,7 @@ def generate_events(cfg: Config, accounts: pd.DataFrame, users: pd.DataFrame) ->
             if churn_cutoff and d > churn_cutoff:
                 continue
 
-            # If user is inactive in dim_user (explicit deactivation), reduce events heavily
+            # If user is inactive in dim_user, reduce events heavily
             if (u["is_active"] is False) and (np.random.rand() < 0.80):
                 continue
 
@@ -215,7 +214,7 @@ def generate_events(cfg: Config, accounts: pd.DataFrame, users: pd.DataFrame) ->
 
             # Work session events (use timer_stop.duration_seconds as the source of truth for time)
             if np.random.rand() < 0.75:
-                start_min = int(np.random.uniform(8 * 60, 11 * 60))  # morning start
+                start_min = int(np.random.uniform(8 * 60, 11 * 60)) # start between 8:00 and 11:00
                 session_start = d + timedelta(minutes=start_min)
                 duration = int(np.random.uniform(20 * 60, 3 * 60 * 60))  # 20m to 3h
                 session_end = session_start + timedelta(seconds=duration)

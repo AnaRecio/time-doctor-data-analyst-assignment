@@ -1,0 +1,125 @@
+version: 2
+
+models:
+  - name: dim_date
+    description: "Calendar dimension generated from event timestamps."
+    columns:
+      - name: date_day
+        description: "The date value for the day (used as a date key)."
+        tests:
+          - not_null
+          - unique
+
+  - name: dim_user_day
+    description: "Surrogate user-day dimension (one row per user per day) with eligibility flag."
+    columns:
+      - name: date_day
+        description: "Date for this user-day (FK to `dim_date.date_day`)."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_date')
+              field: date_day
+
+      - name: user_id
+        description: "User identifier (FK to `stg_users.user_id`)."
+        tests:
+          - not_null
+
+      - name: account_id
+        description: "Account identifier for the user (FK to `stg_accounts.account_id`)."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_accounts')
+              field: account_id
+
+      - name: role
+        description: "User role within the account."
+
+      - name: country
+        description: "User country/region."
+
+      - name: is_eligible_user
+        description: "Indicator (0/1) whether the user was eligible on the date."
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [date_day, user_id]
+
+  - name: fct_user_day_activity
+    description: "Aggregated user-day activity metrics derived from atomic events."
+    columns:
+      - name: account_id
+        description: "Account identifier for the activity row."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_accounts')
+              field: account_id
+
+      - name: user_id
+        description: "User identifier for the activity row."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_user_day')
+              field: user_id
+
+      - name: event_date
+        description: "Event date for the aggregated metrics (FK to `dim_date.date_day`)."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_date')
+              field: date_day
+
+      - name: sessions_started
+        description: "Count of session starts for the user-day."
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+
+      - name: sessions_stopped
+        description: "Count of session stops for the user-day."
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+
+      - name: engagement_events
+        description: "Count of engagement events for the user-day."
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+
+      - name: work_seconds
+        description: "Total work session seconds for the user-day."
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+
+      - name: tasks_created
+        description: "Count of tasks created for the user-day."
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+
+      - name: tasks_completed
+        description: "Count of tasks completed for the user-day."
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+
+      - name: late_events
+        description: "Count of late events for the user-day."
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [account_id, user_id, event_date]
